@@ -6,6 +6,7 @@ import { useGraphData } from "./hooks/useGraphData";
 import { useWebSocket } from "./hooks/useWebSocket";
 
 export default function App() {
+  const { graphData, mergeDelta, resetGraph } = useGraphData();
   const {
     messages,
     sendMessage,
@@ -13,8 +14,7 @@ export default function App() {
     activeFramework,
     conversationId,
     resetConversation,
-  } = useChat();
-  const { graphData, mergeDelta, resetGraph } = useGraphData();
+  } = useChat(mergeDelta);
   const { isConnected } = useWebSocket(mergeDelta);
 
   const handleReset = useCallback(() => {

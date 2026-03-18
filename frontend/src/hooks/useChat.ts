@@ -1,12 +1,12 @@
 import { useCallback, useRef, useState } from "react";
 import { postChat } from "../api/client";
-import type { ChatMessage } from "../types";
+import type { ChatMessage, GraphDelta } from "../types";
 
 function generateId() {
   return crypto.randomUUID();
 }
 
-export function useChat() {
+export function useChat(onGraphDelta?: (delta: GraphDelta) => void) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeFramework, setActiveFramework] = useState<string | null>(null);
@@ -25,6 +25,11 @@ export function useChat() {
     try {
       const response = await postChat(text, conversationIdRef.current);
       setActiveFramework(response.framework);
+
+      // Merge graph delta from HTTP response as fallback
+      if (onGraphDelta && response.graph_delta) {
+        onGraphDelta(response.graph_delta);
+      }
 
       const assistantMsg: ChatMessage = {
         role: "assistant",
