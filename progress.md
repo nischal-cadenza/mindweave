@@ -10,8 +10,15 @@
 - **Phase 5:** Frontend UI — ChatPanel, GraphCanvas (react-force-graph-2d), MessageBubble, FrameworkBadge, ExportButton, split-panel App layout
 - **Phase 6:** Integration polish — graph delta from HTTP response fallback, New Chat reset, connection indicator, loading animation
 
+### Phase 7: Error Handling (500 fix)
+- Added error handling around OpenAI calls in chat endpoint (503 for auth, 502 for other errors)
+- Made Graphiti initialization graceful — app starts even if Neo4j is unavailable
+- Fixed potential `NameError` on `combined_delta` when Graphiti ingestion fails
+
+### Phase 8: README & Documentation
+- Created comprehensive `README.md` with quick start, env var table, local dev instructions, API endpoints, project structure, troubleshooting
+
 ### Next Steps
 - Test full flow with `docker compose up --build`
 - Verify Graphiti entity extraction with real Neo4j
-- Add error toast/inline for API failures
 - Test export to Markdown download

@@ -1,8 +1,9 @@
 import logging
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from openai import AuthenticationError, OpenAIError
 
-from app.models.schemas import ChatRequest, ChatResponse
+from app.models.schemas import ChatRequest, ChatResponse, GraphDelta
 from app.services.chat_service import chat_service
 from app.services.graphiti_service import graphiti_service
 
@@ -13,9 +14,20 @@ router = APIRouter()
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
-    reply, framework = await chat_service.process_message(
-        request.conversation_id, request.message
-    )
+    try:
+        reply, framework = await chat_service.process_message(
+            request.conversation_id, request.message
+        )
+    except AuthenticationError:
+        raise HTTPException(
+            status_code=503,
+            detail="OpenAI API key not configured or invalid.",
+        )
+    except OpenAIError as e:
+        logger.error("OpenAI API error: %s", e)
+        raise HTTPException(status_code=502, detail=f"OpenAI API error: {e}")
+
+    combined_delta = GraphDelta()
 
     # Ingest both messages as Graphiti episodes
     try:
@@ -43,9 +55,6 @@ async def chat(request: ChatRequest):
         )
     except Exception as e:
         logger.error("Graphiti ingestion failed: %s", e)
-        from app.models.schemas import GraphDelta
-
-        combined_delta = GraphDelta()
 
     return ChatResponse(
         reply=reply,

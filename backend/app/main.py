@@ -15,12 +15,15 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting up — initializing Graphiti...")
-    await graphiti_service.init(
-        uri=settings.neo4j_uri,
-        user=settings.neo4j_user,
-        password=settings.neo4j_password,
-    )
-    logger.info("Graphiti ready")
+    try:
+        await graphiti_service.init(
+            uri=settings.neo4j_uri,
+            user=settings.neo4j_user,
+            password=settings.neo4j_password,
+        )
+        logger.info("Graphiti ready")
+    except Exception as e:
+        logger.warning("Graphiti initialization failed (graph features disabled): %s", e)
     yield
     logger.info("Shutting down — closing Graphiti...")
     await graphiti_service.close()

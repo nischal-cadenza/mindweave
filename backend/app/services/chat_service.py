@@ -41,12 +41,16 @@ class ChatService:
             {"role": msg.role, "content": msg.content} for msg in conversation
         )
 
-        response = await self.client.chat.completions.create(
-            model="gpt-4o",
-            messages=messages,
-            temperature=0.7,
-            max_tokens=1024,
-        )
+        try:
+            response = await self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+                temperature=0.7,
+                max_tokens=1024,
+            )
+        except Exception as e:
+            logger.error("OpenAI API call failed: %s", e)
+            raise
 
         reply = response.choices[0].message.content or ""
 
