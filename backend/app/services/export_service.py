@@ -12,7 +12,7 @@ def format_conversation_markdown(
     messages: list[ChatMessage], conversation_id: str
 ) -> str:
     lines = [
-        f"# MindWeave Conversation",
+        "# MindWeave Conversation",
         f"**Conversation ID:** {conversation_id}",
         f"**Exported:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}",
         "",

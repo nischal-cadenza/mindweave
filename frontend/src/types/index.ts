@@ -24,10 +24,19 @@ export interface GraphDelta {
   edges: GraphEdge[];
 }
 
+export interface GraphStatus {
+  state: "initializing" | "ready" | "degraded" | "disabled";
+  message: string | null;
+  model: string | null;
+}
+
+export type GraphConnectionState = "connecting" | "live" | "reconnecting";
+
 export interface ChatResponse {
   reply: string;
   framework: string | null;
   graph_delta: GraphDelta;
+  graph_status: GraphStatus;
 }
 
 export interface GraphData {

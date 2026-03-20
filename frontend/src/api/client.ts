@@ -1,4 +1,4 @@
-import type { ChatResponse, GraphDelta } from "../types";
+import type { ChatResponse, GraphDelta, GraphStatus } from "../types";
 
 const API_BASE = "/api/v1";
 
@@ -24,8 +24,15 @@ export async function postChat(
   });
 }
 
-export async function getGraph(): Promise<GraphDelta> {
-  return request<GraphDelta>("/graph");
+export async function getGraph(conversationId?: string): Promise<GraphDelta> {
+  const query = conversationId
+    ? `?conversation_id=${encodeURIComponent(conversationId)}`
+    : "";
+  return request<GraphDelta>(`/graph${query}`);
+}
+
+export async function getGraphStatus(): Promise<GraphStatus> {
+  return request<GraphStatus>("/graph/status");
 }
 
 export async function postExport(

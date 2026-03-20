@@ -20,6 +20,9 @@ async def lifespan(app: FastAPI):
             uri=settings.neo4j_uri,
             user=settings.neo4j_user,
             password=settings.neo4j_password,
+            api_key=settings.openrouter_api_key,
+            base_url=settings.openrouter_base_url,
+            model=settings.graph_model,
         )
         logger.info("Graphiti ready")
     except Exception as e:
@@ -52,4 +55,4 @@ app.include_router(ws.router, tags=["websocket"])
 
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    return {"status": "ok", "graph": graphiti_service.get_status().model_dump()}

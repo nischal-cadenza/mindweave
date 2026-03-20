@@ -18,7 +18,29 @@
 ### Phase 8: README & Documentation
 - Created comprehensive `README.md` with quick start, env var table, local dev instructions, API endpoints, project structure, troubleshooting
 
+### Phase 9: Switch LLM to OpenRouter (Qwen3 Coder)
+- Replaced GPT-4o/OpenAI with OpenRouter's `qwen/qwen3-coder` (free tier)
+- Renamed `openai_api_key` → `openrouter_api_key` in config
+- Added `openrouter_base_url` and `llm_model` settings for flexibility
+- Updated error messages from "OpenAI" to "OpenRouter"/"LLM"
+- Updated `.env.example` and `.env` with new env var name
+- `openai` Python package retained as the HTTP client (OpenRouter is OpenAI-compatible)
+
+### Phase 10: Fix Knowledge Graph — Graphiti LLM + Embedder for OpenRouter
+- Configured Graphiti's LLM client (`OpenAIGenericClient`) and embedder (`OpenAIEmbedder`) to use OpenRouter credentials
+- Previously Graphiti used default OpenAI client which required `OPENAI_API_KEY` — now uses `openrouter_api_key`, `openrouter_base_url`, and `llm_model` from settings
+- Updated `graphiti_service.py` init to accept and wire up LLM/embedder configs
+- Updated `main.py` lifespan to pass OpenRouter credentials to Graphiti init
+
+### Phase 11: Fix Embedder — Replace OpenAIEmbedder with Hash-Based No-Op
+- OpenRouter does not support `/v1/embeddings` — every `add_episode()` failed at embedding time, caught silently, returning empty `GraphDelta`
+- Created `backend/app/services/noop_embedder.py` — SHA-256 hash-based deterministic vectors (dim 1024)
+- Replaced `OpenAIEmbedder` with `NoOpEmbedder` in `graphiti_service.py`
+- Exact-match dedup preserved (identical strings → identical vectors); only semantic similarity degraded (acceptable for V1)
+- No new dependencies, API keys, or env vars required
+
 ### Next Steps
 - Test full flow with `docker compose up --build`
-- Verify Graphiti entity extraction with real Neo4j
+- Verify graph populates after sending a chat message
 - Test export to Markdown download
+- If semantic dedup becomes important, swap `NoOpEmbedder` for a dedicated embedding provider (Gemini free tier, Voyage AI, or OpenAI key)

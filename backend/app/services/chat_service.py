@@ -13,7 +13,10 @@ logger = logging.getLogger(__name__)
 
 class ChatService:
     def __init__(self) -> None:
-        self.client = AsyncOpenAI(api_key=settings.openai_api_key)
+        self.client = AsyncOpenAI(
+            api_key=settings.openrouter_api_key,
+            base_url=settings.openrouter_base_url,
+        )
         self.conversations: dict[str, list[ChatMessage]] = {}
 
     def get_conversation(self, conversation_id: str) -> list[ChatMessage]:
@@ -43,13 +46,13 @@ class ChatService:
 
         try:
             response = await self.client.chat.completions.create(
-                model="gpt-4o",
+                model=settings.chat_model,
                 messages=messages,
-                temperature=0.7,
-                max_tokens=1024,
+                temperature=0.6,
+                max_tokens=900,
             )
         except Exception as e:
-            logger.error("OpenAI API call failed: %s", e)
+            logger.error("LLM API call failed: %s", e)
             raise
 
         reply = response.choices[0].message.content or ""

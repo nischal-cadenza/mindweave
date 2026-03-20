@@ -12,10 +12,11 @@ export default function App() {
     sendMessage,
     isLoading,
     activeFramework,
+    graphStatus,
     conversationId,
     resetConversation,
   } = useChat(mergeDelta);
-  const { isConnected } = useWebSocket(mergeDelta);
+  const { connectionState } = useWebSocket(conversationId, mergeDelta);
 
   const handleReset = useCallback(() => {
     resetConversation();
@@ -38,7 +39,11 @@ export default function App() {
 
       {/* Graph Canvas — right half */}
       <div className="w-1/2">
-        <GraphCanvas graphData={graphData} isConnected={isConnected} />
+        <GraphCanvas
+          graphData={graphData}
+          graphStatus={graphStatus}
+          connectionState={connectionState}
+        />
       </div>
     </div>
   );
